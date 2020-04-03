@@ -1,4 +1,6 @@
 import _ = require('lodash')
+import {IConfig} from '@oclif/config'
+import {tsPath} from '@oclif/config/lib/ts-node'
 
 export function castArray<T>(input?: T | T[]): T[] {
   if (input === undefined) return []
@@ -41,3 +43,33 @@ export namespace sort {
 }
 
 export const template = (context: any) => (t: string | undefined): string => _.template(t || '')(context)
+
+export function extractPlugin(config: IConfig, pluginPath: string): any {
+  const helpPlugin = tsPath(config.root, pluginPath)
+  return require(helpPlugin) as any
+}
+
+export function extractExport(exported: any): any {
+  return exported && exported.default ? exported.default : exported
+}
+
+export function getHelpPlugin(config: IConfig, defaultPlugin = '@oclif/plugin-help'): any {
+  const pjson = config.pjson
+  const configuredPlugin = pjson && pjson.oclif && pjson.oclif.helpPlugin
+
+  if (configuredPlugin) {
+    try {
+      const exported = extractPlugin(config, configuredPlugin)
+      return extractExport(exported)
+    } catch (error) {
+      throw new Error(`Unable to load configured help plugin "${configuredPlugin}" from package.json, failed with message:\n${error.message}`)
+    }
+  }
+
+  try {
+    const exported = require(defaultPlugin)
+    return extractExport(exported)
+  } catch (error) {
+    throw new Error(`Could not load a help plugin, consider installing the @oclif/plugin-help package, failed with message:\n${error.message}`)
+  }
+}
