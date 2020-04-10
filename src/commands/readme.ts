@@ -6,7 +6,8 @@ import * as _ from 'lodash'
 import * as path from 'path'
 import {URL} from 'url'
 
-import {castArray, compact, sortBy, template, uniqBy, getHelpPlugin} from '../util'
+import {castArray, compact, sortBy, template, uniqBy} from '../util'
+import {getHelpPlugin} from '@oclif/plugin-help'
 
 const normalize = require('normalize-package-data')
 const columns = parseInt(process.env.COLUMNS!, 10) || 120
@@ -149,10 +150,18 @@ USAGE
     const help = new HelpPlugin(config, {stripAnsi: true, maxWidth: columns})
 
     const header = () => `## \`${config.bin} ${this.commandUsage(config, c)}\``
+
+    const generateCommandHelp = () =>  {
+      // check for legacy .command method if using an older @oclif/plugin-help
+      const commandHelp = help.getCommandHelpForReadme || (help as any).command
+      if (!commandHelp) throw new Error('No help plugin provided to generate command help for readme')
+      return commandHelp.call(help, c)
+    }
+
     return compact([
       header(),
       title,
-      '```\n' + help.command(c).trim() + '\n```',
+      '```\n' + generateCommandHelp().trim() + '\n```',
       this.commandCode(config, c),
     ]).join('\n\n')
   }
