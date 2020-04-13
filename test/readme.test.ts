@@ -2,10 +2,10 @@ import {expect, test} from '@oclif/test'
 import * as fs from 'fs-extra'
 import * as  PluginHelp from '@oclif/plugin-help'
 import {IConfig} from '@oclif/config'
-import * as HelpPlugin from '../src/_test-help'
+import * as HelpClass from '../src/_test-help'
 import {spy, createSandbox, SinonStub} from 'sinon'
 
-const originalGetHelpPlugin = PluginHelp.getHelpPlugin
+const originalGetHelpClass = PluginHelp.getHelpClass
 const readme = fs.readFileSync('README.md', 'utf8')
 
 describe('readme', () => {
@@ -29,21 +29,21 @@ describe('readme', () => {
     expect(fs.readFileSync('README.md', 'utf8')).to.contain('manifest')
   })
 
-  describe('with help plugin', () => {
+  describe('with help class', () => {
     test
     .stdout()
     .add('commandSpy', () => {
-      return spy(HelpPlugin.default.prototype.getCommandHelpForReadme)
+      return spy(HelpClass.default.prototype.getCommandHelpForReadme)
     })
-    .stub(PluginHelp, 'getHelpPlugin', (config: IConfig) => {
-      config.pjson.oclif.helpPlugin = './lib/_test-help'
-      return originalGetHelpPlugin(config)
+    .stub(PluginHelp, 'getHelpClass', (config: IConfig) => {
+      config.pjson.oclif.helpClass = './lib/_test-help'
+      return originalGetHelpClass(config)
     })
     .finally(ctx => ctx.commandSpy.restore())
     .command(['readme'])
     .it('runs readme with help.getCommandHelpForReadmeSpy method', ({commandSpy}) => {
-      expect(HelpPlugin.default.prototype.getCommandHelpForReadme).to.exist
-      expect((HelpPlugin.default.prototype as any).command).to.not.exist
+      expect(HelpClass.default.prototype.getCommandHelpForReadme).to.exist
+      expect((HelpClass.default.prototype as any).command).to.not.exist
       expect(commandSpy.called).to.be.true
       expect(fs.readFileSync('README.md', 'utf8')).to.contain(`
 ## \`oclif-dev pack\`
@@ -67,8 +67,8 @@ _See code: [src/commands/pack/index.ts](https://github.com/oclif/dev-cli/blob/v1
       return `${command.id} >> generated from  legacy .command call`
     })
 
-    HelpPlugin.default.prototype.command = command
-    const getCommandHelpForReadmeSpy = sb.stub(HelpPlugin.default.prototype, 'getCommandHelpForReadme').value(undefined)
+    HelpClass.default.prototype.command = command
+    const getCommandHelpForReadmeSpy = sb.stub(HelpClass.default.prototype, 'getCommandHelpForReadme').value(undefined)
 
     return {
       sb,
@@ -76,18 +76,18 @@ _See code: [src/commands/pack/index.ts](https://github.com/oclif/dev-cli/blob/v1
       getCommandHelpForReadmeSpy,
     }
   })
-  .stub(PluginHelp, 'getHelpPlugin', (config: IConfig) => {
-    config.pjson.oclif.helpPlugin = './lib/_test-help'
-    return originalGetHelpPlugin(config)
+  .stub(PluginHelp, 'getHelpClass', (config: IConfig) => {
+    config.pjson.oclif.helpClass = './lib/_test-help'
+    return originalGetHelpClass(config)
   })
   .finally(ctx => {
     ctx.sandbox.sb.restore()
-    delete HelpPlugin.default.prototype.command
+    delete HelpClass.default.prototype.command
   })
   .command(['readme'])
   .it('runs readme using deprecated help.command method for readme generation', ({sandbox}) => {
-    expect((HelpPlugin.default.prototype as any).command).to.exist
-    expect((HelpPlugin.default.prototype as any).getCommandHelpForReadme).to.not.exist
+    expect((HelpClass.default.prototype as any).command).to.exist
+    expect((HelpClass.default.prototype as any).getCommandHelpForReadme).to.not.exist
     expect(sandbox.command.called).to.be.true
     expect(sandbox.getCommandHelpForReadmeSpy.called).to.be.false
     expect(fs.readFileSync('README.md', 'utf8')).to.contain(`

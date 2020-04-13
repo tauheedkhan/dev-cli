@@ -1,8 +1,8 @@
-// This a test help plugin for the purposes of dev-cli and readme generation.
+// This a test help class for the purposes of dev-cli and readme generation.
 // It is used for testing purposes only as the dev-cli generates a readme for itself in tests
 // (see readme tests). For more info on help plugins check out @oclif/plugin-help
 
-export default class HelpPlugin {
+export default class TestHelp {
   [x: string]: any
 
   getCommandHelpForReadme(command: any) {

@@ -7,7 +7,7 @@ import * as path from 'path'
 import {URL} from 'url'
 
 import {castArray, compact, sortBy, template, uniqBy} from '../util'
-import {getHelpPlugin} from '@oclif/plugin-help'
+import {getHelpClass} from '@oclif/plugin-help'
 
 const normalize = require('normalize-package-data')
 const columns = parseInt(process.env.COLUMNS!, 10) || 120
@@ -146,8 +146,8 @@ USAGE
     this.debug('rendering command', c.id)
     const title = template({config, command: c})(c.description || '').trim().split('\n')[0]
 
-    const HelpPlugin = getHelpPlugin(config)
-    const help = new HelpPlugin(config, {stripAnsi: true, maxWidth: columns})
+    const HelpClass = getHelpClass(config)
+    const help = new HelpClass(config, {stripAnsi: true, maxWidth: columns})
 
     const header = () => `## \`${config.bin} ${this.commandUsage(config, c)}\``
 
