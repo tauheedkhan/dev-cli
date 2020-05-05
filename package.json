@@ -78,6 +78,6 @@
   "repository": "cli-packager",
   "scripts": {
     "prepack": "node ./bin/run manifest",
-    "version": "npm run changelog && node ./bin/run readme && git add README.md",
+    "version": "npm run changelog && node ./bin/run readme && git add README.md"
   }
 }
